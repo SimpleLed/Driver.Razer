@@ -27,6 +27,7 @@ namespace Driver.Razer.Devices
             headsetControlDevice.Driver = new RazerDriver();
             headsetControlDevice.DeviceType = DeviceTypes.Headset;
             headsetControlDevice.Name = "Headset";
+            headsetControlDevice.ProductImage = RazerDriver.GetImage("Headset");
             headsetControlDevice.Has2DSupport = false;
             headsetControlDevice.LEDs = new ControlDevice.LedUnit[5];
 

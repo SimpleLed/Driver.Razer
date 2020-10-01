@@ -27,6 +27,7 @@ namespace Driver.Razer.Devices
             mouseControlDevice.Driver = new RazerDriver();
             mouseControlDevice.DeviceType = DeviceTypes.Mouse;
             mouseControlDevice.Name = "Mouse";
+            mouseControlDevice.ProductImage = RazerDriver.GetImage("Mouse");
             mouseControlDevice.Has2DSupport = true;
             mouseControlDevice.GridHeight = 9;
             mouseControlDevice.GridWidth = 7;

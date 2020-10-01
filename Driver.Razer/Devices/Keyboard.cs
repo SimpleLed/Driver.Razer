@@ -27,6 +27,7 @@ namespace Driver.Razer.Devices
             keyboardControlDevice.Driver = new RazerDriver();
             keyboardControlDevice.DeviceType = DeviceTypes.Keyboard;
             keyboardControlDevice.Name = "Keyboard";
+            keyboardControlDevice.ProductImage = RazerDriver.GetImage("Keyboard");
             keyboardControlDevice.Has2DSupport = true;
             keyboardControlDevice.GridHeight = 6;
             keyboardControlDevice.GridWidth = 22;

@@ -23,18 +23,19 @@ namespace Driver.Razer.Devices
         }
         public static ControlDevice Device()
         {
-            ControlDevice headsetControlDevice = new ControlDevice();
-            headsetControlDevice.Driver = new RazerDriver();
-            headsetControlDevice.DeviceType = DeviceTypes.Other;
-            headsetControlDevice.Name = "Keypad";
-            headsetControlDevice.Has2DSupport = true;
-            headsetControlDevice.GridHeight = 4;
-            headsetControlDevice.GridWidth = 5;
-            headsetControlDevice.LEDs = new ControlDevice.LedUnit[20];
+            ControlDevice keypadControlDevice = new ControlDevice();
+            keypadControlDevice.Driver = new RazerDriver();
+            keypadControlDevice.DeviceType = DeviceTypes.Other;
+            keypadControlDevice.Name = "Keypad";
+            keypadControlDevice.ProductImage = RazerDriver.GetImage("Keypad");
+            keypadControlDevice.Has2DSupport = true;
+            keypadControlDevice.GridHeight = 4;
+            keypadControlDevice.GridWidth = 5;
+            keypadControlDevice.LEDs = new ControlDevice.LedUnit[20];
 
             for (int i = 0; i < 20; i++)
             {
-                headsetControlDevice.LEDs[i] = new ControlDevice.LedUnit
+                keypadControlDevice.LEDs[i] = new ControlDevice.LedUnit
                 {
                     LEDName = "LED " + i.ToString(),
                     Data = new ControlDevice.LEDData
@@ -44,7 +45,7 @@ namespace Driver.Razer.Devices
                 };
             }
 
-            return headsetControlDevice;
+            return keypadControlDevice;
         }
     }
 }

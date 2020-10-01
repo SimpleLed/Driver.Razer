@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Threading;
@@ -68,7 +70,7 @@ namespace Driver.Razer
 
             devices.Add(Devices.Keyboard.Device());
             devices.Add(Devices.Mouse.Device());
-            devices.Add(Devices.Mouse.Device());
+            devices.Add(Devices.Mousepad.Device());
             devices.Add(Devices.Headset.Device());
             devices.Add(Devices.ChromaLink.Device());
 
@@ -127,6 +129,22 @@ namespace Driver.Razer
         public void PutConfig<T>(T config) where T : SLSConfigData
         {
             throw new NotImplementedException();
+        }
+
+        public static Bitmap GetImage(string image)
+        {
+            Assembly myAssembly = Assembly.GetExecutingAssembly();
+
+            try
+            {
+                Stream imageStream = myAssembly.GetManifestResourceStream("Driver.Razer.ProductImages." + image + ".png");
+                return (Bitmap)Image.FromStream(imageStream);
+            }
+            catch
+            {
+                Stream placeholder = myAssembly.GetManifestResourceStream("Driver.Razer.RazerPlaceholder.png");
+                return (Bitmap)Image.FromStream(placeholder);
+            }
         }
 
         public class InitResponse

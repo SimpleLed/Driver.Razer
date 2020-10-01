@@ -42,6 +42,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -64,6 +65,21 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="ProductImages\Mouse.png" />
+    <EmbeddedResource Include="ProductImages\Mousepad.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RazerPlaceholder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ProductImages\Keyboard.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ProductImages\Headset.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ProductImages\Keypad.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

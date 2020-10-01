@@ -23,16 +23,17 @@ namespace Driver.Razer.Devices
         }
         public static ControlDevice Device()
         {
-            ControlDevice headsetControlDevice = new ControlDevice();
-            headsetControlDevice.Driver = new RazerDriver();
-            headsetControlDevice.DeviceType = DeviceTypes.MousePad;
-            headsetControlDevice.Name = "Mousepad";
-            headsetControlDevice.Has2DSupport = false;
-            headsetControlDevice.LEDs = new ControlDevice.LedUnit[20];
+            ControlDevice mousepadControlDevice = new ControlDevice();
+            mousepadControlDevice.Driver = new RazerDriver();
+            mousepadControlDevice.DeviceType = DeviceTypes.MousePad;
+            mousepadControlDevice.Name = "Mousepad";
+            mousepadControlDevice.ProductImage = RazerDriver.GetImage("Mousepad");
+            mousepadControlDevice.Has2DSupport = false;
+            mousepadControlDevice.LEDs = new ControlDevice.LedUnit[20];
 
             for (int i = 0; i < 20; i++)
             {
-                headsetControlDevice.LEDs[i] = new ControlDevice.LedUnit
+                mousepadControlDevice.LEDs[i] = new ControlDevice.LedUnit
                 {
                     LEDName = "LED " + i.ToString(),
                     Data = new ControlDevice.LEDData
@@ -42,7 +43,7 @@ namespace Driver.Razer.Devices
                 };
             }
 
-            return headsetControlDevice;
+            return mousepadControlDevice;
         }
     }
 }

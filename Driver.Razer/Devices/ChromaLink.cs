@@ -23,16 +23,17 @@ namespace Driver.Razer.Devices
         }
         public static ControlDevice Device()
         {
-            ControlDevice headsetControlDevice = new ControlDevice();
-            headsetControlDevice.Driver = new RazerDriver();
-            headsetControlDevice.DeviceType = DeviceTypes.Other;
-            headsetControlDevice.Name = "Chroma Link";
-            headsetControlDevice.Has2DSupport = false;
-            headsetControlDevice.LEDs = new ControlDevice.LedUnit[5];
+            ControlDevice chromaLinkControlDevice = new ControlDevice();
+            chromaLinkControlDevice.Driver = new RazerDriver();
+            chromaLinkControlDevice.DeviceType = DeviceTypes.Other;
+            chromaLinkControlDevice.Name = "Chroma Link";
+            chromaLinkControlDevice.ProductImage = RazerDriver.GetImage("ChromaLink");
+            chromaLinkControlDevice.Has2DSupport = false;
+            chromaLinkControlDevice.LEDs = new ControlDevice.LedUnit[5];
 
             for (int i = 0; i < 5; i++)
             {
-                headsetControlDevice.LEDs[i] = new ControlDevice.LedUnit
+                chromaLinkControlDevice.LEDs[i] = new ControlDevice.LedUnit
                 {
                     LEDName = "LED " + i.ToString(),
                     Data = new ControlDevice.LEDData
@@ -42,7 +43,7 @@ namespace Driver.Razer.Devices
                 };
             }
 
-            return headsetControlDevice;
+            return chromaLinkControlDevice;
         }
     }
 }
