@@ -83,8 +83,9 @@ namespace Driver.Razer
         {
 
             List<ControlDevice> devices = new List<ControlDevice>();
-
-            //devices.Add(Devices.Keyboard.Device());
+                
+            devices.Add(Devices.Keyboard.Device());
+            devices.Add(Devices.Keypad.Device());
             devices.Add(Devices.Mouse.Device());
             devices.Add(Devices.Mousepad.Device());
             devices.Add(Devices.Headset.Device());
@@ -104,7 +105,7 @@ namespace Driver.Razer
                 Id = Guid.Parse("9594242f-ac1b-4cae-b6b6-24d1482d3a09"),
                 Author = "Fanman03",
                 Blurb = "Driver for all devices compatible with the Razer Chroma SDK.",
-                CurrentVersion = new ReleaseNumber(1, 0, 0, 1),
+                CurrentVersion = new ReleaseNumber(1, 0, 0, 2),
                 GitHubLink = "https://github.com/SimpleLed/Driver.Razer",
                 IsPublicRelease = true
             };
@@ -141,6 +142,9 @@ namespace Driver.Razer
                         break;
                     case DeviceTypes.Headset:
                         Devices.Headset.UpdateLighting(controlDevice, uri);
+                        break;
+                    case DeviceTypes.Keypad:
+                        Devices.Keypad.UpdateLighting(controlDevice, uri);
                         break;
                     default:
                         Devices.ChromaLink.UpdateLighting(controlDevice, uri);
