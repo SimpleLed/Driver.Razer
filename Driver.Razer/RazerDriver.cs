@@ -5,11 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Threading;
 using Newtonsoft.Json;
 using RestSharp;
 using SimpleLed;
+using Timer = System.Timers.Timer;
 
 namespace Driver.Razer
 {
@@ -19,12 +22,13 @@ namespace Driver.Razer
 
         private ControlDevice.LedUnit[] leds = new ControlDevice.LedUnit[5];
 
-        public string uri;
+        public static string uri;
 
         public int sessionId;
 
         public void Configure(DriverDetails driverDetails)
         {
+            Console.WriteLine("Connecting to Razer API...");
             var client = new RestClient("http://localhost:54235/razer/chromasdk");
             client.Timeout = -1;
             var request = new RestRequest(Method.POST);
@@ -36,18 +40,30 @@ namespace Driver.Razer
             uri = responseObj.uri;
             Console.WriteLine(uri);
 
-            DispatcherTimer heartbeatTimer = new DispatcherTimer();
-            heartbeatTimer.Tick += new EventHandler(heartbeat_Tick);
-            heartbeatTimer.Interval = new TimeSpan(0, 0, 1);
-            heartbeatTimer.Start();
+            Thread.Sleep(100);
+
+            Timer heartbeatTimer = new Timer();
+            heartbeatTimer.Elapsed += new ElapsedEventHandler(heartbeat_Tick);
+            heartbeatTimer.Interval = 1000;
+            heartbeatTimer.Enabled = true;
+            GC.KeepAlive(heartbeatTimer);
         }
 
         private void heartbeat_Tick(object sender, EventArgs e)
         {
-            var client = new RestClient(uri+"/heartbeat");
-            client.Timeout = -1;
-            var request = new RestRequest(Method.POST);
-            client.Execute(request);
+            if (uri == null)
+            {
+                Console.WriteLine("No URI");
+            }
+            else
+            {
+                string heartbeatUri = uri + "/heartbeat";
+                var client = new RestClient(heartbeatUri);
+                client.Timeout = -1;
+                var request = new RestRequest(Method.PUT);
+                IRestResponse tickResponse = client.Execute(request);
+                //Console.WriteLine(tickResponse.Content);
+            }
         }
 
         public void Dispose()
@@ -55,7 +71,7 @@ namespace Driver.Razer
             var client = new RestClient(uri);
             client.Timeout = -1;
             var request = new RestRequest(Method.DELETE);
-            client.Execute(request);
+            client.Execute(request); 
         }
 
         public T GetConfig<T>() where T : SLSConfigData
@@ -68,7 +84,7 @@ namespace Driver.Razer
 
             List<ControlDevice> devices = new List<ControlDevice>();
 
-            devices.Add(Devices.Keyboard.Device());
+            //devices.Add(Devices.Keyboard.Device());
             devices.Add(Devices.Mouse.Device());
             devices.Add(Devices.Mousepad.Device());
             devices.Add(Devices.Headset.Device());
@@ -88,7 +104,7 @@ namespace Driver.Razer
                 Id = Guid.Parse("9594242f-ac1b-4cae-b6b6-24d1482d3a09"),
                 Author = "Fanman03",
                 Blurb = "Driver for all devices compatible with the Razer Chroma SDK.",
-                CurrentVersion = new ReleaseNumber(1, 0, 0, 0),
+                CurrentVersion = new ReleaseNumber(1, 0, 0, 1),
                 GitHubLink = "https://github.com/SimpleLed/Driver.Razer",
                 IsPublicRelease = true
             };
@@ -106,23 +122,30 @@ namespace Driver.Razer
 
         public void Push(ControlDevice controlDevice)
         {
-            switch (controlDevice.DeviceType)
+            if (uri == null)
             {
-                case DeviceTypes.Keyboard:
-                    Devices.Keyboard.UpdateLighting(controlDevice, uri);
-                    break;
-                case DeviceTypes.Mouse:
-                    Devices.Mouse.UpdateLighting(controlDevice, uri);
-                    break;
-                case DeviceTypes.MousePad:
-                    Devices.Mousepad.UpdateLighting(controlDevice, uri);
-                    break;
-                case DeviceTypes.Headset:
-                    Devices.Headset.UpdateLighting(controlDevice, uri);
-                    break;
-                default:
-                    Devices.ChromaLink.UpdateLighting(controlDevice, uri);
-                    break;
+                Console.WriteLine("No URI");
+            }
+            else
+            {
+                switch (controlDevice.DeviceType)
+                {
+                    case DeviceTypes.Keyboard:
+                        Devices.Keyboard.UpdateLighting(controlDevice, uri);
+                        break;
+                    case DeviceTypes.Mouse:
+                        Devices.Mouse.UpdateLighting(controlDevice, uri);
+                        break;
+                    case DeviceTypes.MousePad:
+                        Devices.Mousepad.UpdateLighting(controlDevice, uri);
+                        break;
+                    case DeviceTypes.Headset:
+                        Devices.Headset.UpdateLighting(controlDevice, uri);
+                        break;
+                    default:
+                        Devices.ChromaLink.UpdateLighting(controlDevice, uri);
+                        break;
+                }
             }
         }
 
@@ -153,5 +176,12 @@ namespace Driver.Razer
 
             public string uri { get; set; }
         }
+
+        public static int ToBgr(LEDColor rgbColor)
+        {
+            // Return a zero-alpha 24-bit BGR color integer
+            return (0 << 24) + (rgbColor.Blue << 16) + (rgbColor.Green << 8) + rgbColor.Red;
+        }
+
     }
 }

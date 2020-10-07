@@ -18,7 +18,7 @@ namespace Driver.Razer.Devices
             client.Timeout = -1;
             var request = new RestRequest(Method.POST);
             request.AddHeader("Content-Type", "application/json");
-            request.AddParameter("application/json", "{\r\n    \"effect\":\"CHROMA_CUSTOM2\",\r\n    \"param\":[\r\n        [ 255,255,255,255,255,255,255 ],\r\n        [ 65280,65280,65280,65280,65280,65280,65280 ],\r\n        [ 16711680,16711680,16711680,16711680,16711680,16711680,16711680 ],\r\n        [ 65535,65535,65535,65535,65535,65535,65535 ],\r\n        [ 16711935,16711935,16711935,16711935,16711935,16711935,16711935 ],\r\n        [ 255,255,255,255,255,255,255 ],\r\n        [ 65280,65280,65280,65280,65280,65280,65280 ],\r\n        [ 16711680,16711680,16711680,16711680,16711680,16711680,16711680 ],\r\n        [ 255,255,255,255,255,255,255 ]\r\n    ]\r\n}", ParameterType.RequestBody);
+            request.AddParameter("application/json", "{\r\n    \"effect\": \"CHROMA_STATIC\",\r\n    \"param\": {\r\n        \"color\": 1677215\r\n    }\r\n}", ParameterType.RequestBody);
             IRestResponse response = client.Execute(request);
         }
         public static ControlDevice Device()

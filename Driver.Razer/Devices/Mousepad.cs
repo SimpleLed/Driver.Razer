@@ -14,12 +14,17 @@ namespace Driver.Razer.Devices
     {
         public static void UpdateLighting(ControlDevice controlDevice, string uri)
         {
+            int[] colors = new int[15];
+            for (int i = 0; i < 15; i++)
+            {
+                colors[i] = RazerDriver.ToBgr(controlDevice.LEDs[i].Color);
+            }
             var client = new RestClient(uri + "/mousepad");
             client.Timeout = -1;
-            var request = new RestRequest(Method.POST);
+            var request = new RestRequest(Method.PUT);
             request.AddHeader("Content-Type", "application/json");
-            request.AddParameter("application/json", "{\r\n    \"effect\":\"CHROMA_CUSTOM\",\r\n    \"param\":[ 2255, 255, 255, 255, 255, 65280, 65280, 65280, 65280, 65280, 16711680, 16711680, 16711680, 16711680, 16711680, 16777215, 16777215, 16777215, 16777215, 16777215 ]\r\n}", ParameterType.RequestBody);
-            IRestResponse response = client.Execute(request);
+            request.AddParameter("application/json", "{\r\n    \"effect\":\"CHROMA_CUSTOM\",\r\n    \"param\":[ " + colors[0] + ", " + colors[1] + ", " + colors[2] + ", " + colors[3] + ", " + colors[4] + ", " + colors[5] + ", " + colors[6] + ", " + colors[7] + ", " + colors[8] + ", " + colors[9] + ", " + colors[10] + ", " + colors[11] + ", " + colors[12] + ", " + colors[13] + ", " + colors[14] + "]\r\n}", ParameterType.RequestBody);
+            client.Execute(request);
         }
         public static ControlDevice Device()
         {
@@ -29,9 +34,9 @@ namespace Driver.Razer.Devices
             mousepadControlDevice.Name = "Mousepad";
             mousepadControlDevice.ProductImage = RazerDriver.GetImage("Mousepad");
             mousepadControlDevice.Has2DSupport = false;
-            mousepadControlDevice.LEDs = new ControlDevice.LedUnit[20];
+            mousepadControlDevice.LEDs = new ControlDevice.LedUnit[15];
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 15; i++)
             {
                 mousepadControlDevice.LEDs[i] = new ControlDevice.LedUnit
                 {
