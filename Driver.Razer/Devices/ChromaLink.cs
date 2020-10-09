@@ -22,9 +22,12 @@ namespace Driver.Razer.Devices
             var client = new RestClient(uri + "/chromalink");
             client.Timeout = -1;
             var request = new RestRequest(Method.PUT);
+            //var json = request.JsonSerializer.Serialize(Model.LedData("CHROMA_CUSTOM", controlDevice.LEDs));
             request.AddHeader("Content-Type", "application/json");
+            //request.AddParameter("application/json", json, ParameterType.RequestBody);
             request.AddParameter("application/json", "{\r\n    \"effect\":\"CHROMA_CUSTOM\",\r\n    \"param\":[ " + colors[0] + ", " + colors[1] + ", " + colors[2] + ", " + colors[3] + ", " + colors[4] + " ]\r\n}", ParameterType.RequestBody);
-            client.Execute(request);
+            IRestResponse response = client.Execute(request);
+            Console.WriteLine(response.Content);
         }
         public static ControlDevice Device()
         {

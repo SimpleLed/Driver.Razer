@@ -8,23 +8,36 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using Newtonsoft.Json;
 using RestSharp;
 using SimpleLed;
+using Image = System.Drawing.Image;
 using Timer = System.Timers.Timer;
 
 namespace Driver.Razer
 {
-    public class RazerDriver : ISimpleLed
+    public class RazerDriver : ISimpleLedWithConfig
     {
         public event EventHandler DeviceRescanRequired;
 
-        private ControlDevice.LedUnit[] leds = new ControlDevice.LedUnit[5];
+        [JsonIgnore]
+        public RazerConfigModel configModel = new RazerConfigModel();
+
+        public bool GetIsDirty()
+        {
+            return configModel.DataIsDirty;
+        }
+
+        public void SetIsDirty(bool val)
+        {
+            configModel.DataIsDirty = val;
+        }
 
         public static string uri;
 
-        public int sessionId;
+        public static int sessionId;
 
         public void Configure(DriverDetails driverDetails)
         {
@@ -76,7 +89,21 @@ namespace Driver.Razer
 
         public T GetConfig<T>() where T : SLSConfigData
         {
-            throw new NotImplementedException();
+            RazerConfigModel data = this.configModel;
+            SLSConfigData proxy = data;
+            return (T)proxy;
+        }
+
+        public UserControl GetCustomConfig(ControlDevice controlDevice)
+        {
+            var config = new RazerConfig()
+            {
+                DataContext = configModel
+            };
+
+            configModel.CurrentControlDevice = controlDevice;
+
+            return config;
         }
 
         public List<ControlDevice> GetDevices()
@@ -101,7 +128,7 @@ namespace Driver.Razer
                 SupportsPull = false,
                 SupportsPush = true,
                 IsSource = false,
-                SupportsCustomConfig = false,
+                SupportsCustomConfig = true,
                 Id = Guid.Parse("9594242f-ac1b-4cae-b6b6-24d1482d3a09"),
                 Author = "Fanman03",
                 Blurb = "Driver for all devices compatible with the Razer Chroma SDK.",
@@ -155,7 +182,7 @@ namespace Driver.Razer
 
         public void PutConfig<T>(T config) where T : SLSConfigData
         {
-            throw new NotImplementedException();
+            RazerConfigModel proxy = config as RazerConfigModel;
         }
 
         public static Bitmap GetImage(string image)
