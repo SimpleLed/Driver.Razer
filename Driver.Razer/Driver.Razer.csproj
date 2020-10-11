@@ -34,16 +34,19 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="RestSharp, Version=106.11.7.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
-      <HintPath>..\..\TestHarness\packages\RestSharp.106.11.7\lib\net452\RestSharp.dll</HintPath>
+      <HintPath>..\packages\RestSharp.106.11.7\lib\net452\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="SimpleLed, Version=1.0.0.4, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Interface\SimpleLed\bin\Debug\SimpleLed.dll</HintPath>
+      <HintPath>..\packages\SimpleLed.1.0.16\lib\net472\SimpleLed.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -59,8 +62,13 @@
     <Compile Include="Devices\Keypad.cs" />
     <Compile Include="Devices\Mouse.cs" />
     <Compile Include="Devices\Mousepad.cs" />
+    <Compile Include="RazerConfig.xaml.cs">
+      <DependentUpon>RazerConfig.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RazerConfigModel.cs" />
     <Compile Include="RazerDriver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RazerModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -80,6 +88,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ProductImages\Keypad.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="RazerConfig.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

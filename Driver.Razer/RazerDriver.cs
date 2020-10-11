@@ -3,44 +3,52 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using Newtonsoft.Json;
 using RestSharp;
 using SimpleLed;
+using Image = System.Drawing.Image;
 using Timer = System.Timers.Timer;
 
 namespace Driver.Razer
 {
-    public class RazerDriver : ISimpleLed
+    public class RazerDriver : ISimpleLedWithConfig
     {
         public event EventHandler DeviceRescanRequired;
 
-        private ControlDevice.LedUnit[] leds = new ControlDevice.LedUnit[5];
+        [JsonIgnore]
+        public RazerConfigModel configModel = new RazerConfigModel();
+
+        public bool GetIsDirty()
+        {
+            return configModel.DataIsDirty;
+        }
+
+        public void SetIsDirty(bool val)
+        {
+            configModel.DataIsDirty = val;
+        }
+
+        public const string initJson = "{\"title\":\"RGB Sync Studio\",\"description\":\"The next generation of RGB control software.\",\"author\":{\"name\":\"Fanman03\",\"contact\":\"www.rgbsync.com\"},\"device_supported\":[\"keyboard\",\"mouse\",\"headset\",\"mousepad\",\"keypad\",\"chromalink\"],\"category\":\"application\"}";
 
         public static string uri;
 
-        public int sessionId;
+        public static int sessionId;
 
-        public void Configure(DriverDetails driverDetails)
+
+        public async void Configure(DriverDetails driverDetails)
         {
-            Console.WriteLine("Connecting to Razer API...");
-            var client = new RestClient("http://localhost:54235/razer/chromasdk");
-            client.Timeout = -1;
-            var request = new RestRequest(Method.POST);
-            request.AddHeader("Content-Type", "application/json");
-            request.AddParameter("application/json", "{\r\n    \"title\": \"RGB Sync Studio\",\r\n    \"description\": \"The next generation of RGB control software.\",\r\n    \"author\": {\r\n        \"name\": \"Fanman03\",\r\n        \"contact\": \"www.rgbsync.com\"\r\n    },\r\n    \"device_supported\": [\r\n        \"keyboard\",\r\n        \"mouse\",\r\n        \"headset\",\r\n        \"mousepad\",\r\n        \"keypad\",\r\n        \"chromalink\"\r\n    ],\r\n    \"category\": \"application\"\r\n}", ParameterType.RequestBody);
-            IRestResponse response = client.Execute(request);
-            InitResponse responseObj = JsonConvert.DeserializeObject<InitResponse>(response.Content);
-            sessionId = responseObj.sessionid;
-            uri = responseObj.uri;
-            Console.WriteLine(uri);
+            InitResponse response = PostAsync<InitResponse>("http://localhost:54235/razer/chromasdk", initJson).Result;
+            uri = response.uri;
 
-            Thread.Sleep(100);
+            await Task.Delay(TimeSpan.FromMilliseconds(100));
 
             Timer heartbeatTimer = new Timer();
             heartbeatTimer.Elapsed += new ElapsedEventHandler(heartbeat_Tick);
@@ -51,19 +59,13 @@ namespace Driver.Razer
 
         private void heartbeat_Tick(object sender, EventArgs e)
         {
-            if (uri == null)
-            {
-                Console.WriteLine("No URI");
-            }
-            else
-            {
-                string heartbeatUri = uri + "/heartbeat";
-                var client = new RestClient(heartbeatUri);
-                client.Timeout = -1;
-                var request = new RestRequest(Method.PUT);
-                IRestResponse tickResponse = client.Execute(request);
-                //Console.WriteLine(tickResponse.Content);
-            }
+            if (string.IsNullOrWhiteSpace(uri)) return;
+            
+            string heartbeatUri = uri + "/heartbeat";
+            var client = new RestClient(heartbeatUri);
+            client.Timeout = -1;
+            var request = new RestRequest(Method.PUT);
+            IRestResponse tickResponse = client.Execute(request);
         }
 
         public void Dispose()
@@ -76,20 +78,33 @@ namespace Driver.Razer
 
         public T GetConfig<T>() where T : SLSConfigData
         {
-            throw new NotImplementedException();
+            RazerConfigModel data = this.configModel;
+            SLSConfigData proxy = data;
+            return (T)proxy;
+        }
+
+        public UserControl GetCustomConfig(ControlDevice controlDevice)
+        {
+            var config = new RazerConfig()
+            {
+                DataContext = configModel
+            };
+
+            configModel.CurrentControlDevice = controlDevice;
+
+            return config;
         }
 
         public List<ControlDevice> GetDevices()
         {
-
             List<ControlDevice> devices = new List<ControlDevice>();
-                
-            devices.Add(Devices.Keyboard.Device());
-            devices.Add(Devices.Keypad.Device());
-            devices.Add(Devices.Mouse.Device());
-            devices.Add(Devices.Mousepad.Device());
-            devices.Add(Devices.Headset.Device());
-            devices.Add(Devices.ChromaLink.Device());
+
+                devices.Add(Devices.Keyboard.Device());
+                devices.Add(Devices.Keypad.Device());
+                devices.Add(Devices.Mouse.Device());
+                devices.Add(Devices.Mousepad.Device());
+                devices.Add(Devices.Headset.Device());
+                devices.Add(Devices.ChromaLink.Device());
 
             return devices;
         }
@@ -101,11 +116,11 @@ namespace Driver.Razer
                 SupportsPull = false,
                 SupportsPush = true,
                 IsSource = false,
-                SupportsCustomConfig = false,
+                SupportsCustomConfig = true,
                 Id = Guid.Parse("9594242f-ac1b-4cae-b6b6-24d1482d3a09"),
                 Author = "Fanman03",
                 Blurb = "Driver for all devices compatible with the Razer Chroma SDK.",
-                CurrentVersion = new ReleaseNumber(1, 0, 0, 2),
+                CurrentVersion = new ReleaseNumber(1, 0, 0, 3),
                 GitHubLink = "https://github.com/SimpleLed/Driver.Razer",
                 IsPublicRelease = true
             };
@@ -155,7 +170,7 @@ namespace Driver.Razer
 
         public void PutConfig<T>(T config) where T : SLSConfigData
         {
-            throw new NotImplementedException();
+            RazerConfigModel proxy = config as RazerConfigModel;
         }
 
         public static Bitmap GetImage(string image)
@@ -186,6 +201,28 @@ namespace Driver.Razer
             // Return a zero-alpha 24-bit BGR color integer
             return (0 << 24) + (rgbColor.Blue << 16) + (rgbColor.Green << 8) + rgbColor.Red;
         }
+
+        private async Task<T> PostAsync<T>(string url, string model)
+        {
+            using (var client = new HttpClient())
+            {
+                var data = new StringContent(model, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(url, data);
+                string result = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<T>(result);
+            }
+        }
+
+        public static void Put(string url, Model.LedDataObject model)
+        {
+            using (var client = new HttpClient())
+            {
+                var json = JsonConvert.SerializeObject(model);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = client.PutAsync(url, data).Result;
+            }
+        }
+
 
     }
 }
