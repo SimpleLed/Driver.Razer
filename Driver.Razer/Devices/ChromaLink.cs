@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using RestSharp;
 using SimpleLed;
 
@@ -14,21 +15,9 @@ namespace Driver.Razer.Devices
     {
         public static void UpdateLighting(ControlDevice controlDevice, string uri)
         {
-            int[] colors = new int[5];
-            for (int i = 0; i < 5; i++)
-            {
-                colors[i] = RazerDriver.ToBgr(controlDevice.LEDs[i].Color);
-            }
-            var client = new RestClient(uri + "/chromalink");
-            client.Timeout = -1;
-            var request = new RestRequest(Method.PUT);
-            //var json = request.JsonSerializer.Serialize(Model.LedData("CHROMA_CUSTOM", controlDevice.LEDs));
-            request.AddHeader("Content-Type", "application/json");
-            //request.AddParameter("application/json", json, ParameterType.RequestBody);
-            request.AddParameter("application/json", "{\r\n    \"effect\":\"CHROMA_CUSTOM\",\r\n    \"param\":[ " + colors[0] + ", " + colors[1] + ", " + colors[2] + ", " + colors[3] + ", " + colors[4] + " ]\r\n}", ParameterType.RequestBody);
-            IRestResponse response = client.Execute(request);
-            Console.WriteLine(response.Content);
+            RazerDriver.Put(uri + "/chromalink",Model.LedData("CHROMA_CUSTOM", controlDevice.LEDs));
         }
+
         public static ControlDevice Device()
         {
             ControlDevice chromaLinkControlDevice = new ControlDevice();

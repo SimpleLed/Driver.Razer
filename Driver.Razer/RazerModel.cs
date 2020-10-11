@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using RestSharp;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using SimpleLed;
 
 namespace Driver.Razer
@@ -19,21 +20,12 @@ namespace Driver.Razer
             };
         }
 
-        private static int[] ConvertToIntArray(ControlDevice.LedUnit[] leds)
-        {
-            int[] colors = new int[leds.Length];
-            for (int i = 0; i < leds.Length; i++)
-            {
-                colors[i] = RazerDriver.ToBgr(leds[i].Color);
-            }
-
-            return colors;
-        }
-
         public class LedDataObject
         {
             public string effect { get; set; }
             public int[] param { get; set; }
         }
+
+        private static int[] ConvertToIntArray(ControlDevice.LedUnit[] leds) => leds.Select(x => RazerDriver.ToBgr(x.Color)).ToArray();
     }
 }
