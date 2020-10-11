@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using RestSharp;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SimpleLed;
@@ -16,16 +15,24 @@ namespace Driver.Razer
             return new LedDataObject
             {
                 effect = effectType,
-                param = ConvertToIntArray(leds)
+                param = leds.Select(x => RazerDriver.ToBgr(x.Color)).ToArray()
+            };
+        }
+
+        public static LedDataObject LedData(string effectType, int[][] leds)
+        {
+            return new LedDataObject
+            {
+                effect = effectType,
+                param = leds
             };
         }
 
         public class LedDataObject
         {
             public string effect { get; set; }
-            public int[] param { get; set; }
+            public object param { get; set; }
         }
 
-        private static int[] ConvertToIntArray(ControlDevice.LedUnit[] leds) => leds.Select(x => RazerDriver.ToBgr(x.Color)).ToArray();
     }
 }

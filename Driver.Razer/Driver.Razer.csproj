@@ -36,12 +36,6 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="RestSharp, Version=106.11.7.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.106.11.7\lib\net452\RestSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="SimpleLed, Version=1.0.0.4, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SimpleLed.1.0.16\lib\net472\SimpleLed.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -62,6 +56,7 @@
     <Compile Include="Devices\Keypad.cs" />
     <Compile Include="Devices\Mouse.cs" />
     <Compile Include="Devices\Mousepad.cs" />
+    <Compile Include="Devices\RazerControlDevice.cs" />
     <Compile Include="RazerConfig.xaml.cs">
       <DependentUpon>RazerConfig.xaml</DependentUpon>
     </Compile>
@@ -69,6 +64,8 @@
     <Compile Include="RazerDriver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RazerModel.cs" />
+    <Compile Include="RazorHIDS.cs" />
+    <Compile Include="RESTHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

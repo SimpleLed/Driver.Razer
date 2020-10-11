@@ -5,50 +5,44 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using RestSharp;
 using SimpleLed;
 
 namespace Driver.Razer.Devices
 {
-    public static class Headset
+   
+
+    public class HeadSetDevice : RazerControlDevice
     {
-        public static void UpdateLighting(ControlDevice controlDevice,string uri)
+        private readonly string baseUrl;
+
+        public override string UpdateUrl => baseUrl + "/headset";
+
+        public override Model.LedDataObject GetUpdateModel()
         {
-            int[] colors = new int[5];
-            for (int i = 0; i < 5; i++)
-            {
-                colors[i] = RazerDriver.ToBgr(controlDevice.LEDs[i].Color);
-            }
-            var client = new RestClient(uri+"/headset");
-            client.Timeout = -1;
-            var request = new RestRequest(Method.PUT);
-            request.AddHeader("Content-Type", "application/json");
-            request.AddParameter("application/json", "{\r\n    \"effect\":\"CHROMA_CUSTOM\",\r\n    \"param\":[ " + colors[0] + ", " + colors[1] + ", " + colors[2] + ", " + colors[3] + ", " + colors[4] + " ]\r\n}", ParameterType.RequestBody);
-            client.Execute(request);
+            return Model.LedData("CHROMA_CUSTOM", this.LEDs);
         }
-        public static ControlDevice Device()
+
+        public HeadSetDevice(string url, ISimpleLed driver)
         {
-            ControlDevice headsetControlDevice = new ControlDevice();
-            headsetControlDevice.Driver = new RazerDriver();
-            headsetControlDevice.DeviceType = DeviceTypes.Headset;
-            headsetControlDevice.Name = "Headset";
-            headsetControlDevice.ProductImage = RazerDriver.GetImage("Headset");
-            headsetControlDevice.Has2DSupport = false;
-            headsetControlDevice.LEDs = new ControlDevice.LedUnit[5];
+            baseUrl = url;
+            Driver = driver;
+            DeviceType = DeviceTypes.Headset;
+            Name = "Headset";
+            ProductImage = RazerDriver.GetImage("Headset");
+            Has2DSupport = false;
+            LEDs = new LedUnit[5];
 
             for (int i = 0; i < 5; i++)
             {
-                headsetControlDevice.LEDs[i] = new ControlDevice.LedUnit
+                LEDs[i] = new LedUnit
                 {
                     LEDName = "LED " + i.ToString(),
-                    Data = new ControlDevice.LEDData
+                    Data = new LEDData
                     {
                         LEDNumber = i
                     }
                 };
             }
-
-            return headsetControlDevice;
         }
     }
 }

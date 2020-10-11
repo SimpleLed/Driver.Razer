@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -11,8 +12,8 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using Driver.Razer.Devices;
 using Newtonsoft.Json;
-using RestSharp;
 using SimpleLed;
 using Image = System.Drawing.Image;
 using Timer = System.Timers.Timer;
@@ -21,6 +22,25 @@ namespace Driver.Razer
 {
     public class RazerDriver : ISimpleLedWithConfig
     {
+
+        private readonly List<USBDevice> supportedKeyboards = RazorHIDS.RazorUsbDevices.Where(x => x.DeviceType == DeviceTypes.Keyboard).ToList();
+        private readonly List<USBDevice> supportedMice = RazorHIDS.RazorUsbDevices.Where(x => x.DeviceType == DeviceTypes.Mouse).ToList();
+        private readonly List<USBDevice> supportedMouseMats = RazorHIDS.RazorUsbDevices.Where(x => x.DeviceType == DeviceTypes.MousePad).ToList();
+        private readonly List<USBDevice> supportedHeadsets = RazorHIDS.RazorUsbDevices.Where(x => x.DeviceType == DeviceTypes.Headset).ToList();
+        private readonly List<USBDevice> supportedKeypads = new List<USBDevice>
+        {
+            //todo - update the device types of keyboards that are actually keypads
+        };
+
+        private List<USBDevice> supportedChromalinks = new List<USBDevice>
+        {
+            //todo - wtf are these?
+        };
+
+
+
+
+
         public event EventHandler DeviceRescanRequired;
 
         [JsonIgnore]
@@ -45,7 +65,12 @@ namespace Driver.Razer
 
         public async void Configure(DriverDetails driverDetails)
         {
-            InitResponse response = PostAsync<InitResponse>("http://localhost:54235/razer/chromasdk", initJson).Result;
+            Startup();
+        }
+
+        public async Task Startup()
+        {
+            InitResponse response = await RESTHelpers.PostAsync<InitResponse>("http://localhost:54235/razer/chromasdk", initJson).ConfigureAwait(false);
             uri = response.uri;
 
             await Task.Delay(TimeSpan.FromMilliseconds(100));
@@ -60,20 +85,25 @@ namespace Driver.Razer
         private void heartbeat_Tick(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(uri)) return;
-            
+
             string heartbeatUri = uri + "/heartbeat";
-            var client = new RestClient(heartbeatUri);
-            client.Timeout = -1;
-            var request = new RestRequest(Method.PUT);
-            IRestResponse tickResponse = client.Execute(request);
+
+            try
+            {
+                RESTHelpers.Put(heartbeatUri);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("heartbeat failed: "+ex.Message);
+            }
+
         }
 
         public void Dispose()
         {
-            var client = new RestClient(uri);
-            client.Timeout = -1;
-            var request = new RestRequest(Method.DELETE);
-            client.Execute(request); 
+            if (string.IsNullOrWhiteSpace(uri)) return;
+
+            RESTHelpers.Delete(uri);
         }
 
         public T GetConfig<T>() where T : SLSConfigData
@@ -99,18 +129,113 @@ namespace Driver.Razer
         {
             List<ControlDevice> devices = new List<ControlDevice>();
 
-                devices.Add(Devices.Keyboard.Device());
-                devices.Add(Devices.Keypad.Device());
-                devices.Add(Devices.Mouse.Device());
-                devices.Add(Devices.Mousepad.Device());
-                devices.Add(Devices.Headset.Device());
-                devices.Add(Devices.ChromaLink.Device());
+            var connectedKeyboards = SLSManager.GetSupportedDevices(supportedKeyboards);
+            var connectedMice = SLSManager.GetSupportedDevices(supportedMice);
+            var connectedMouseMats = SLSManager.GetSupportedDevices(supportedMouseMats);
+            var connectedKeypads = SLSManager.GetSupportedDevices(supportedKeypads);
+            var connectedHeadsets = SLSManager.GetSupportedDevices(supportedHeadsets);
+            var connectedChromaLinks = SLSManager.GetSupportedDevices(supportedChromalinks);
+
+
+            if (!configModel.ShowOnlyConnected || connectedKeyboards.Any())
+            {
+                KeyboardDevice keyboard = new KeyboardDevice(uri, this);
+
+                if (connectedKeyboards.Any())
+                {
+                    USBDevice first = connectedKeyboards.First();
+
+                    keyboard.Name = first.DevicePrettyName;
+                }
+
+                devices.Add(keyboard);
+            }
+
+            if (!configModel.ShowOnlyConnected || connectedMice.Any())
+            {
+                MouseDevice mouse = new MouseDevice(uri, this);
+
+                if (connectedMice.Any())
+                {
+                    USBDevice first = connectedMice.First();
+
+                    mouse.Name = first.DevicePrettyName;
+                }
+
+                devices.Add(mouse);
+            }
+
+            if (!configModel.ShowOnlyConnected || connectedMouseMats.Any())
+            {
+                MousepadDevice mousePad = new MousepadDevice(uri, this);
+
+                if (connectedMouseMats.Any())
+                {
+                    USBDevice first = connectedMouseMats.First();
+
+                    mousePad.Name = first.DevicePrettyName;
+                }
+
+                devices.Add(mousePad);
+            }
+
+
+            if (!configModel.ShowOnlyConnected || connectedKeypads.Any())
+            {
+                KeypadDevice keypad = new KeypadDevice(uri, this);
+
+                if (connectedKeypads.Any())
+                {
+                    USBDevice first = connectedKeypads.First();
+
+                    keypad.Name = first.DevicePrettyName;
+                }
+
+                devices.Add(keypad);
+            }
+
+
+
+            if (!configModel.ShowOnlyConnected || connectedHeadsets.Any())
+            {
+                HeadSetDevice headset = new HeadSetDevice(uri, this);
+
+                if (connectedHeadsets.Any())
+                {
+                    USBDevice first = connectedHeadsets.First();
+
+                    headset.Name = first.DevicePrettyName;
+                }
+
+                devices.Add(headset);
+            }
+
+            if (!configModel.ShowOnlyConnected || connectedChromaLinks.Any())
+            {
+                ChromaLinkDevice chromaLink = new ChromaLinkDevice(uri, this);
+
+                if (connectedChromaLinks.Any())
+                {
+                    USBDevice first = connectedChromaLinks.First();
+
+                    chromaLink.Name = first.DevicePrettyName;
+                }
+
+                devices.Add(chromaLink);
+            }
 
             return devices;
         }
 
         public DriverProperties GetProperties()
         {
+
+            var allSupported = supportedChromalinks.ToList();
+            allSupported.AddRange(supportedHeadsets);
+            allSupported.AddRange(supportedKeyboards);
+            allSupported.AddRange(supportedKeypads);
+            allSupported.AddRange(supportedMice);
+            allSupported.AddRange(supportedMouseMats);
             return new DriverProperties
             {
                 SupportsPull = false,
@@ -122,7 +247,8 @@ namespace Driver.Razer
                 Blurb = "Driver for all devices compatible with the Razer Chroma SDK.",
                 CurrentVersion = new ReleaseNumber(1, 0, 0, 3),
                 GitHubLink = "https://github.com/SimpleLed/Driver.Razer",
-                IsPublicRelease = true
+                IsPublicRelease = true,
+                SupportedDevices = allSupported
             };
         }
 
@@ -144,27 +270,9 @@ namespace Driver.Razer
             }
             else
             {
-                switch (controlDevice.DeviceType)
-                {
-                    case DeviceTypes.Keyboard:
-                        Devices.Keyboard.UpdateLighting(controlDevice, uri);
-                        break;
-                    case DeviceTypes.Mouse:
-                        Devices.Mouse.UpdateLighting(controlDevice, uri);
-                        break;
-                    case DeviceTypes.MousePad:
-                        Devices.Mousepad.UpdateLighting(controlDevice, uri);
-                        break;
-                    case DeviceTypes.Headset:
-                        Devices.Headset.UpdateLighting(controlDevice, uri);
-                        break;
-                    case DeviceTypes.Keypad:
-                        Devices.Keypad.UpdateLighting(controlDevice, uri);
-                        break;
-                    default:
-                        Devices.ChromaLink.UpdateLighting(controlDevice, uri);
-                        break;
-                }
+                RazerControlDevice razerControlDevice = controlDevice as RazerControlDevice;
+
+                RESTHelpers.Put(razerControlDevice.UpdateUrl, razerControlDevice.GetUpdateModel());
             }
         }
 
@@ -180,13 +288,22 @@ namespace Driver.Razer
             try
             {
                 Stream imageStream = myAssembly.GetManifestResourceStream("Driver.Razer.ProductImages." + image + ".png");
-                return (Bitmap)Image.FromStream(imageStream);
+                if (imageStream != null)
+                {
+                    return (Bitmap)Image.FromStream(imageStream);
+                }
             }
             catch
             {
-                Stream placeholder = myAssembly.GetManifestResourceStream("Driver.Razer.RazerPlaceholder.png");
+            }
+
+            Stream placeholder = myAssembly.GetManifestResourceStream("Driver.Razer.RazerPlaceholder.png");
+            if (placeholder != null)
+            {
                 return (Bitmap)Image.FromStream(placeholder);
             }
+
+            return null;
         }
 
         public class InitResponse
@@ -199,30 +316,25 @@ namespace Driver.Razer
         public static int ToBgr(LEDColor rgbColor)
         {
             // Return a zero-alpha 24-bit BGR color integer
-            return (0 << 24) + (rgbColor.Blue << 16) + (rgbColor.Green << 8) + rgbColor.Red;
+            return (rgbColor.Blue << 16) + (rgbColor.Green << 8) + rgbColor.Red;
         }
 
-        private async Task<T> PostAsync<T>(string url, string model)
+        public static int[][] ToJaggedArray(ControlDevice.LedUnit[] leds, int width, int height)
         {
-            using (var client = new HttpClient())
+            int[] colors = leds.Select(x => RazerDriver.ToBgr(x.Color)).ToArray();
+            int[][] twodColors = new int[height][];
+            int ptr = 0;
+            for (int i = 0; i < height; i++)
             {
-                var data = new StringContent(model, Encoding.UTF8, "application/json");
-                var response = await client.PostAsync(url, data);
-                string result = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<T>(result);
+                twodColors[i] = new int[width];
+                for (int p = 0; p < width; p++)
+                {
+                    twodColors[i][p] = colors[ptr];
+                    ptr++;
+                }
             }
+
+            return twodColors;
         }
-
-        public static void Put(string url, Model.LedDataObject model)
-        {
-            using (var client = new HttpClient())
-            {
-                var json = JsonConvert.SerializeObject(model);
-                var data = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = client.PutAsync(url, data).Result;
-            }
-        }
-
-
     }
 }

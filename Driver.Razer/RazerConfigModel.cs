@@ -5,7 +5,7 @@ namespace Driver.Razer
 {
     public class RazerConfigModel : SLSConfigData
     {
-        private bool showOnlyConnected = true;
+        private bool showOnlyConnected = false;
         public bool ShowOnlyConnected
         {
             get => showOnlyConnected;
