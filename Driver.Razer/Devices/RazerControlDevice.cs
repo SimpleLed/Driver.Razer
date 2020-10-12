@@ -8,7 +8,7 @@ using NotImplementedException = System.NotImplementedException;
 
 namespace Driver.Razer.Devices
 {
-    public abstract class RazerControlDevice : ControlDevice
+    public abstract class RazerControlDevice : InteractiveControlDevice
     {
         public abstract string UpdateUrl { get;}
         public abstract Model.LedDataObject GetUpdateModel();

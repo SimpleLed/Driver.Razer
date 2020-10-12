@@ -37,10 +37,6 @@ namespace Driver.Razer
             //todo - wtf are these?
         };
 
-
-
-
-
         public event EventHandler DeviceRescanRequired;
 
         [JsonIgnore]
@@ -94,7 +90,7 @@ namespace Driver.Razer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("heartbeat failed: "+ex.Message);
+                Debug.WriteLine("heartbeat failed: " + ex.Message);
             }
 
         }
@@ -146,6 +142,11 @@ namespace Driver.Razer
                     USBDevice first = connectedKeyboards.First();
 
                     keyboard.Name = first.DevicePrettyName;
+
+                    if (first.HID.HasValue)
+                    {
+                        KeyboardHelper.AddKeyboardWatcher(first.VID, first.HID.Value, keyboard.HandleInput);
+                    }
                 }
 
                 devices.Add(keyboard);
@@ -245,7 +246,7 @@ namespace Driver.Razer
                 Id = Guid.Parse("9594242f-ac1b-4cae-b6b6-24d1482d3a09"),
                 Author = "Fanman03",
                 Blurb = "Driver for all devices compatible with the Razer Chroma SDK.",
-                CurrentVersion = new ReleaseNumber(1, 0, 0, 3),
+                CurrentVersion = new ReleaseNumber(1, 0, 0, 5),
                 GitHubLink = "https://github.com/SimpleLed/Driver.Razer",
                 IsPublicRelease = true,
                 SupportedDevices = allSupported
