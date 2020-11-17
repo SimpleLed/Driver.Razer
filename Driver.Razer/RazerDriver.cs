@@ -20,7 +20,7 @@ using Timer = System.Timers.Timer;
 
 namespace Driver.Razer
 {
-    public class RazerDriver : ISimpleLedWithConfig
+    public class RazerDriver : ISimpleLed
     {
 
         private readonly List<USBDevice> supportedKeyboards = RazorHIDS.RazorUsbDevices.Where(x => x.DeviceType == DeviceTypes.Keyboard).ToList();
@@ -38,6 +38,8 @@ namespace Driver.Razer
         };
 
         public event EventHandler DeviceRescanRequired;
+        public event Events.DeviceChangeEventHandler DeviceAdded;
+        public event Events.DeviceChangeEventHandler DeviceRemoved;
 
         [JsonIgnore]
         public RazerConfigModel configModel = new RazerConfigModel();
@@ -62,6 +64,12 @@ namespace Driver.Razer
         public async void Configure(DriverDetails driverDetails)
         {
             Startup();
+
+            var drivers = GetDevices();
+            foreach (ControlDevice controlDevice in drivers)
+            {
+                DeviceAdded?.Invoke(this, new Events.DeviceChangeEventArgs(controlDevice));
+            }
         }
 
         public async Task Startup()
@@ -242,7 +250,7 @@ namespace Driver.Razer
                 SupportsPull = false,
                 SupportsPush = true,
                 IsSource = false,
-                SupportsCustomConfig = true,
+                SupportsCustomConfig = false,
                 Id = Guid.Parse("9594242f-ac1b-4cae-b6b6-24d1482d3a09"),
                 Author = "Fanman03",
                 Blurb = "Driver for all devices compatible with the Razer Chroma SDK.",
@@ -336,6 +344,11 @@ namespace Driver.Razer
             }
 
             return twodColors;
+        }
+
+        public void InterestedUSBChange(int VID, int PID, bool connected)
+        {
+            throw new NotImplementedException();
         }
     }
 }
