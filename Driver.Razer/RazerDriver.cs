@@ -254,7 +254,7 @@ namespace Driver.Razer
                 Id = Guid.Parse("9594242f-ac1b-4cae-b6b6-24d1482d3a09"),
                 Author = "Fanman03",
                 Blurb = "Driver for all devices compatible with the Razer Chroma SDK.",
-                CurrentVersion = new ReleaseNumber(1, 0, 0, 5),
+                CurrentVersion = new ReleaseNumber(1, 0, 0, 6),
                 GitHubLink = "https://github.com/SimpleLed/Driver.Razer",
                 IsPublicRelease = true,
                 SupportedDevices = allSupported
@@ -349,6 +349,11 @@ namespace Driver.Razer
         public void InterestedUSBChange(int VID, int PID, bool connected)
         {
             throw new NotImplementedException();
+        }
+
+        public void SetColorProfile(ColorProfile value)
+        {
+
         }
     }
 }
