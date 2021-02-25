@@ -7,9 +7,9 @@ using SimpleLed;
 
 namespace Driver.Razer
 {
-    public static class RazorHIDS
+    public static class RazerHIDS
     {
-        public static List<USBDevice> RazorUsbDevices = new List<USBDevice>
+        public static List<USBDevice> RazerUsbDevices = new List<USBDevice>
         {
             new USBDevice{VID = 0x1532, HID = 0x010D, DevicePrettyName = "BlackWidow Ultimate 2012", DeviceName = "BlackWidow Ultimate 2012", DeviceType = DeviceTypes.Keyboard, ManufacturerName = "Razer"},
 new USBDevice{VID = 0x1532, HID = 0x010E, DevicePrettyName = "BlackWidow Classic (Alternate)", DeviceName = "BlackWidow Classic (Alternate)", DeviceType = DeviceTypes.Keyboard, ManufacturerName = "Razer"},
@@ -118,7 +118,11 @@ new USBDevice{VID = 0x1540, HID = 0x2100, DevicePrettyName = "Kraken 7.1", Devic
 new USBDevice{VID = 0x1540, HID = 0x2400, DevicePrettyName = "Kraken 7.1 Chroma", DeviceName = "Kraken 7.1 Chroma", DeviceType = DeviceTypes.Headset, ManufacturerName = "Razer"},
 new USBDevice{VID = 0x1540, HID = 0x2600, DevicePrettyName = "Kraken 7.1", DeviceName = "Kraken 7.1", DeviceType = DeviceTypes.Headset, ManufacturerName = "Razer"},
 new USBDevice{VID = 0x1540, HID = 0x3000, DevicePrettyName = "Kraken 7.1 V2", DeviceName = "Kraken 7.1 V2", DeviceType = DeviceTypes.Headset, ManufacturerName = "Razer"},
-new USBDevice{VID = 0x1540, HID = 0x4700, DevicePrettyName = "Kraken Ultimate", DeviceName = "Kraken Ultimate", DeviceType = DeviceTypes.Headset, ManufacturerName = "Razer"}
+new USBDevice{VID = 0x1540, HID = 0x4700, DevicePrettyName = "Kraken Ultimate", DeviceName = "Kraken Ultimate", DeviceType = DeviceTypes.Headset, ManufacturerName = "Razer"},
+new USBDevice{VID = 0x1532, HID = 0x0207, DevicePrettyName = "Orbweaver", DeviceName = "Orbweaver", DeviceType = DeviceTypes.Keypad, ManufacturerName = "Razer"},
+new USBDevice{VID = 0x1532, HID = 0x0208, DevicePrettyName = "Tartarus", DeviceName = "Tartarus", DeviceType = DeviceTypes.Keypad, ManufacturerName = "Razer"},
+new USBDevice{VID = 0x1532, HID = 0x022B, DevicePrettyName = "Tartarus V2", DeviceName = "Tartarus V2", DeviceType = DeviceTypes.Keypad, ManufacturerName = "Razer"},
+
         };
     }
 }

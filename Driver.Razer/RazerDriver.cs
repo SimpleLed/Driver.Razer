@@ -20,22 +20,15 @@ using Timer = System.Timers.Timer;
 
 namespace Driver.Razer
 {
-    public class RazerDriver : ISimpleLed
+    public class RazerDriver : ISimpleLedWithConfig
     {
 
-        private readonly List<USBDevice> supportedKeyboards = RazorHIDS.RazorUsbDevices.Where(x => x.DeviceType == DeviceTypes.Keyboard).ToList();
-        private readonly List<USBDevice> supportedMice = RazorHIDS.RazorUsbDevices.Where(x => x.DeviceType == DeviceTypes.Mouse).ToList();
-        private readonly List<USBDevice> supportedMouseMats = RazorHIDS.RazorUsbDevices.Where(x => x.DeviceType == DeviceTypes.MousePad).ToList();
-        private readonly List<USBDevice> supportedHeadsets = RazorHIDS.RazorUsbDevices.Where(x => x.DeviceType == DeviceTypes.Headset).ToList();
-        private readonly List<USBDevice> supportedKeypads = new List<USBDevice>
-        {
-            //todo - update the device types of keyboards that are actually keypads
-        };
+        private readonly List<USBDevice> supportedKeyboards = RazerHIDS.RazerUsbDevices.Where(x => x.DeviceType == DeviceTypes.Keyboard).ToList();
+        private readonly List<USBDevice> supportedMice = RazerHIDS.RazerUsbDevices.Where(x => x.DeviceType == DeviceTypes.Mouse).ToList();
+        private readonly List<USBDevice> supportedMouseMats = RazerHIDS.RazerUsbDevices.Where(x => x.DeviceType == DeviceTypes.MousePad).ToList();
+        private readonly List<USBDevice> supportedHeadsets = RazerHIDS.RazerUsbDevices.Where(x => x.DeviceType == DeviceTypes.Headset).ToList();
+        private readonly List<USBDevice> supportedKeypads = RazerHIDS.RazerUsbDevices.Where(x => x.DeviceType == DeviceTypes.Keyboard).ToList();
 
-        private List<USBDevice> supportedChromalinks = new List<USBDevice>
-        {
-            //todo - wtf are these?
-        };
 
         public event EventHandler DeviceRescanRequired;
         public event Events.DeviceChangeEventHandler DeviceAdded;
@@ -138,7 +131,6 @@ namespace Driver.Razer
             var connectedMouseMats = SLSManager.GetSupportedDevices(supportedMouseMats);
             var connectedKeypads = SLSManager.GetSupportedDevices(supportedKeypads);
             var connectedHeadsets = SLSManager.GetSupportedDevices(supportedHeadsets);
-            var connectedChromaLinks = SLSManager.GetSupportedDevices(supportedChromalinks);
 
 
             if (!configModel.ShowOnlyConnected || connectedKeyboards.Any())
@@ -219,19 +211,11 @@ namespace Driver.Razer
                 devices.Add(headset);
             }
 
-            if (!configModel.ShowOnlyConnected || connectedChromaLinks.Any())
-            {
+                //Chroma links could be anything - always show this one
                 ChromaLinkDevice chromaLink = new ChromaLinkDevice(uri, this);
 
-                if (connectedChromaLinks.Any())
-                {
-                    USBDevice first = connectedChromaLinks.First();
-
-                    chromaLink.Name = first.DevicePrettyName;
-                }
-
                 devices.Add(chromaLink);
-            }
+            
 
             return devices;
         }
@@ -239,8 +223,7 @@ namespace Driver.Razer
         public DriverProperties GetProperties()
         {
 
-            var allSupported = supportedChromalinks.ToList();
-            allSupported.AddRange(supportedHeadsets);
+            var allSupported = supportedHeadsets.ToList();
             allSupported.AddRange(supportedKeyboards);
             allSupported.AddRange(supportedKeypads);
             allSupported.AddRange(supportedMice);
@@ -250,7 +233,7 @@ namespace Driver.Razer
                 SupportsPull = false,
                 SupportsPush = true,
                 IsSource = false,
-                SupportsCustomConfig = false,
+                SupportsCustomConfig = true,
                 Id = Guid.Parse("9594242f-ac1b-4cae-b6b6-24d1482d3a09"),
                 Author = "Fanman03",
                 Blurb = "Driver for all devices compatible with the Razer Chroma SDK.",
