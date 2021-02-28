@@ -69,6 +69,7 @@
     <Compile Include="RazerModel.cs" />
     <Compile Include="RazorHIDS.cs" />
     <Compile Include="RESTHelpers.cs" />
+    <Compile Include="revision.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
